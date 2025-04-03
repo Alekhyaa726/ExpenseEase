@@ -1,4 +1,4 @@
-# Personal Finance Management System
+# ExpenseEase
 
 A comprehensive financial management solution with expense tracking, loan management, and intelligent insights.
 

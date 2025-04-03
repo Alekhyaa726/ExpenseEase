@@ -1,0 +1,7 @@
+flask
+ scikit-learn
+matplotlib
+mysql-connector-python
+flask
+pymongo
+numpy

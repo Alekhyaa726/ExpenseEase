@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<div class="loans-container">
+    <div class="section-header">
+        <h2>Loans</h2>
+        <button class="add-button" onclick="showAddLoanModal()">
+            <i class="fas fa-plus"></i> New Loan
+        </button>
+    </div>
+    
+    {% if error %}
+    <div class="error-alert">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <div class="loans-grid">
+        {% if loans %}
+            {% for loan in loans %}
+            <div class="loan-card" id="loan-{{ loan.loan_id }}">
+                <div class="loan-header">
+                    <div class="loan-type">{{ loan.type }}</div>
+                    <div class="loan-status">Active</div>
+                </div>
+                
+                <div class="loan-amount">₹{{ "%.2f"|format(loan.loan_amount) }}</div>
+                
+                <div class="loan-details">
+                    <div class="detail-item">
+                        <span class="label">Interest Rate</span>
+                        <span class="value">{{ "%.2f"|format(loan.interest) }}%</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Start Date</span>
+                        <span class="value">{{ loan.start_date }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">End Date</span>
+                        <span class="value">{{ loan.end_date }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Balance</span>
+                        <span class="value">₹{{ "%.2f"|format(loan.balance) }}</span>
+                    </div>
+                </div>
+                
+                <div class="loan-actions">
+                    <button onclick="editLoan('{{ loan.loan_id }}', {{ loan.balance }})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteLoan('{{ loan.loan_id }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-loans">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <p>No loans found</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- New Loan Modal -->
+<div id="newLoanModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>New Loan</h3>
+            <button class="close-button" onclick="closeNewLoanModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form method="POST" action="{{ url_for('new_loan') }}" class="loan-form">
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-tag"></i>
+                    Loan Type
+                </label>
+                <select name="type" required>
+                    <option value="">Select Loan Type</option>
+                    <option value="Personal">Personal Loan</option>
+                    <option value="Home">Home Loan</option>
+                    <option value="Car">Car Loan</option>
+                    <option value="Education">Education Loan</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-rupee-sign"></i>
+                    Amount
+                </label>
+                <input type="number" name="amount" required min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-percentage"></i>
+                    Interest Rate (%)
+                </label>
+                <input type="number" name="interest_rate" required min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-calendar"></i>
+                    Duration (months)
+                </label>
+                <input type="number" name="duration" required min="1">
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" onclick="closeNewLoanModal()" class="cancel-button">Cancel</button>
+                <button type="submit" class="submit-button">Create Loan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Edit Loan Modal -->
+<div id="editLoanModal" class="modal">
+    <div class="modal-content">
+        <h2>Update Loan Payment</h2>
+        <form id="editLoanForm">
+            <input type="hidden" id="editLoanId">
+            <div class="form-group">
+                <label>Current Balance: ₹<span id="currentBalance"></span></label>
+            </div>
+            <div class="form-group">
+                <label for="paymentAmount">Payment Amount:</label>
+                <input type="number" id="paymentAmount" required step="0.01">
+            </div>
+            <div class="form-actions">
+                <button type="submit">Update</button>
+                <button type="button" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.loans-container {
+    padding: 20px;
+    height: calc(100vh - 80px); /* Adjust based on your header height */
+    overflow-y: auto;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.add-button {
+    background: #4299e1;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.loans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.loan-card {
+    background: #2d2d2d;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.loan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.loan-type {
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+.loan-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.loan-status.active {
+    background: #48bb78;
+    color: white;
+}
+
+.loan-status.pending {
+    background: #ed8936;
+    color: white;
+}
+
+.loan-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4299e1;
+    margin-bottom: 20px;
+}
+
+.loan-details {
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.label {
+    color: #a0aec0;
+}
+
+.value {
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: #2d2d2d;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    margin: 50px auto;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #a0aec0;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #a0aec0;
+}
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    background: #3d3d3d;
+    border: 1px solid #5d5d5d;
+    border-radius: 4px;
+    color: #e0e0e0;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancel-button,
+.submit-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cancel-button {
+    background: #e53e3e;
+    color: white;
+}
+
+.submit-button {
+    background: #4299e1;
+    color: white;
+}
+
+/* Add more styles as needed */
+
+.page-content {
+    height: 100%;
+    overflow-y: auto;
+}
+
+body {
+    overflow: hidden;
+}
+
+.main-content {
+    height: 100vh;
+    overflow-y: auto;
+}
+</style>
+
+<script>
+function showAddLoanModal() {
+    document.getElementById('newLoanModal').style.display = 'block';
+}
+
+function closeNewLoanModal() {
+    document.getElementById('newLoanModal').style.display = 'none';
+}
+
+function deleteLoan(loanId) {
+    if (confirm('Are you sure you want to delete this loan?')) {
+        fetch('/delete_loan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ loanID: loanId })
+        })
+        .then(response => {
+            // Simply reload the page after deletion
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Silently reload instead of showing error
+            window.location.reload();
+        });
+    }
+}
+
+function editLoan(loanId, balance) {
+    document.getElementById('editLoanId').value = loanId;
+    document.getElementById('currentBalance').textContent = balance.toFixed(2);
+    document.getElementById('editLoanModal').style.display = 'block';
+}
+
+function closeEditModal() {
+    document.getElementById('editLoanModal').style.display = 'none';
+    document.getElementById('editLoanForm').reset();
+}
+
+document.getElementById('editLoanForm').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    const loanId = document.getElementById('editLoanId').value;
+    const paymentAmount = document.getElementById('paymentAmount').value;
+    
+    try {
+        const response = await fetch(`/update_loan/${loanId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                payment_amount: paymentAmount
+            })
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Error updating loan');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error updating loan');
+    }
+};
+</script>
+{% endblock %}

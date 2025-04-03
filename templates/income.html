@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<div class="income-container">
+    <div class="section-header">
+        <h2>Income Management</h2>
+        <button class="add-button" onclick="showAddIncomeModal()">
+            <i class="fas fa-plus"></i> Add Income
+        </button>
+    </div>
+
+    <div class="income-grid">
+        {% for income in incomes %}
+        <div class="income-card">
+            <div class="income-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="income-details">
+                <div class="income-amount">₹{{ income.amount }}</div>
+                <div class="income-description">{{ income.description }}</div>
+                <div class="income-account">
+                    <i class="fas fa-university"></i>
+                    Account: •••• {{ income.incomeNum }}
+                </div>
+            </div>
+            <div class="income-actions">
+                <button onclick="editIncome({{ income.incomeNum }})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteIncome({{ income.incomeNum }})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="no-income">
+            <i class="fas fa-coins"></i>
+            <p>No income records yet</p>
+            <button onclick="showAddIncomeModal()">Add Your First Income</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Add Income Modal -->
+    <div id="incomeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Add Income</h3>
+            </div>
+            <form method="POST" action="{{ url_for('add_income') }}">
+                <div class="form-group">
+                    <label for="amount">
+                        <i class="fas fa-rupee-sign"></i>
+                        Amount
+                    </label>
+                    <input type="number" id="amount" name="amount" required placeholder="Enter amount">
+                </div>
+                <div class="form-group">
+                    <label for="description">
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </label>
+                    <input type="text" id="description" name="description" required placeholder="Enter description">
+                </div>
+                <div class="form-group">
+                    <label for="account">
+                        <i class="fas fa-university"></i>
+                        Select Account
+                    </label>
+                    <select id="account" name="account" required>
+                        <option value="" disabled selected>Choose an account</option>
+                        {% for account in accounts %}
+                        <option value="{{ account.acc_num }}">{{ account.acc_type }} - •••• {{ account.acc_num }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="hideIncomeModal()" class="cancel-btn">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check"></i>
+                        Add Income
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.income-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    color: #e0e0e0;
+    font-size: 24px;
+}
+
+.add-button {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.add-button:hover {
+    background: #38a169;
+    transform: translateY(-1px);
+}
+
+.income-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.income-card {
+    background: #2d2d2d;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.income-card:hover {
+    transform: translateY(-2px);
+}
+
+.income-icon {
+    width: 50px;
+    height: 50px;
+    background: #48bb78;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.income-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.income-details {
+    flex-grow: 1;
+}
+
+.income-amount {
+    font-size: 28px;
+    color: #48bb78;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.income-description {
+    color: #e0e0e0;
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.income-account {
+    color: #a0aec0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.income-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #3d3d3d;
+}
+
+.income-actions button {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.income-actions button:hover {
+    color: #48bb78;
+    background: rgba(72, 187, 120, 0.1);
+}
+
+.no-income {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px;
+    background: #2d2d2d;
+    border-radius: 16px;
+}
+
+.no-income i {
+    font-size: 48px;
+    color: #48bb78;
+    margin-bottom: 16px;
+}
+
+.no-income p {
+    color: #a0aec0;
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+.no-income button {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.no-income button:hover {
+    background: #38a169;
+    transform: translateY(-1px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #2d2d2d;
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.modal-header i {
+    font-size: 24px;
+    color: #48bb78;
+}
+
+.modal-header h3 {
+    color: #e0e0e0;
+    font-size: 20px;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a0aec0;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group label i {
+    color: #48bb78;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    background: #1a1a1a;
+    border: 2px solid #3d3d3d;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #48bb78;
+    box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.2);
+    outline: none;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn {
+    background: none;
+    border: 1px solid #48bb78;
+    color: #48bb78;
+}
+
+.cancel-btn:hover {
+    background: rgba(72, 187, 120, 0.1);
+}
+
+.submit-btn {
+    background: #48bb78;
+    border: none;
+    color: white;
+}
+
+.submit-btn:hover {
+    background: #38a169;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .income-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        margin: 20px;
+    }
+}
+</style>
+
+<script>
+function showAddIncomeModal() {
+    document.getElementById('incomeModal').style.display = 'flex';
+}
+
+function hideIncomeModal() {
+    document.getElementById('incomeModal').style.display = 'none';
+}
+
+function editIncome(incomeNum) {
+    // Implement edit functionality
+    console.log('Edit income:', incomeNum);
+}
+
+function deleteIncome(incomeNum) {
+    if (confirm('Are you sure you want to delete this income record?')) {
+        fetch('/delete_income', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ income_num: incomeNum })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting income record');
+            }
+        });
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target == document.getElementById('incomeModal')) {
+        hideIncomeModal();
+    }
+}
+</script>
+{% endblock %} 

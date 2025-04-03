@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>New Loan Form</h1>
+    <form action="/add_loan" method="POST">
+
+        <label for="amount">Amount:</label>
+        <input type="text" id="loan_amount" name="loan_amount"><br><br>
+
+        <label for="amount">Interest rate:</label>
+        <input type="text" id="interest" name="interest"><br><br>
+
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate"><br><br>
+
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" name="endDate"><br><br>
+
+        <label for="nextDueDate">Next Due Date:</label>
+        <input type="date" id="dueDate" name="dueDate"><br><br>
+
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type"><br><br>
+
+        <label for="type">Balance amount:</label>
+        <input type="text" id="balance" name="balance"><br><br>
+
+        {% if uname == 'admin' %}
+            <label for="user">User:</label>
+            <select id="user" name="user">
+                {% for user in existing_users %}
+                    <option value="{{ user }}">{{ user }}</option>
+                {% endfor %}
+            </select><br><br>
+        {% endif %}
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+{% endblock %}

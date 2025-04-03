@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<div class="records-container">
+    <div class="section-header">
+        <h2>Transaction Records</h2>
+        <div class="filters">
+            <select id="typeFilter" onchange="filterRecords()">
+                <option value="all">All Transactions</option>
+                <option value="expense">Expenses</option>
+                <option value="income">Income</option>
+                <option value="loan">Loans</option>
+            </select>
+            <select id="dateFilter" onchange="filterRecords()">
+                <option value="all">All Time</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 3 Months</option>
+                <option value="180">Last 6 Months</option>
+                <option value="365">Last Year</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="records-list">
+        {% for record in records %}
+        <div class="record-card {{ record.type|lower }}">
+            <div class="record-icon">
+                {% if record.type == 'EXPENSE' %}
+                    <i class="fas fa-receipt"></i>
+                {% elif record.type == 'INCOME' %}
+                    <i class="fas fa-money-bill-wave"></i>
+                {% else %}
+                    <i class="fas fa-hand-holding-usd"></i>
+                {% endif %}
+            </div>
+            <div class="record-details">
+                <div class="record-amount">
+                    {% if record.type == 'EXPENSE' %}
+                        -₹{{ record.amount }}
+                    {% elif record.type == 'INCOME' %}
+                        +₹{{ record.amount }}
+                    {% elif record.type == 'LOAN' %}
+                        ₹{{ record.amount }}
+                    {% endif %}
+                </div>
+                <div class="record-info">
+                    <div class="record-category">
+                        {% if record.type == 'EXPENSE' %}
+                            {{ record.category }}
+                        {% elif record.type == 'INCOME' %}
+                            {{ record.description }}
+                        {% else %}
+                            {{ record.category }}
+                        {% endif %}
+                    </div>
+                    <div class="record-date">{{ record.date.strftime('%Y-%m-%d') }}</div>
+                </div>
+            </div>
+            <div class="record-account">
+                Account: •••• {{ record.account_num }}
+            </div>
+        </div>
+        {% else %}
+        <div class="no-records">
+            <i class="fas fa-receipt"></i>
+            <p>No transaction records found</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.records-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+}
+
+.filters select {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #2d2d2d;
+    color: #e0e0e0;
+    border: 2px solid #3d3d3d;
+}
+
+.record-card {
+    background: #2d2d2d;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    animation: slideIn 0.3s ease;
+}
+
+.record-card.expense {
+    border-left: 4px solid #e53e3e;
+}
+
+.record-card.income {
+    border-left: 4px solid #48bb78;
+}
+
+.record-card.loan {
+    border-left: 4px solid #805ad5;
+}
+
+.record-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.expense .record-icon {
+    background: #e53e3e;
+}
+
+.income .record-icon {
+    background: #48bb78;
+}
+
+.loan .record-icon {
+    background: #805ad5;
+}
+
+.record-icon i {
+    color: white;
+    font-size: 18px;
+}
+
+.record-details {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-amount {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.expense .record-amount {
+    color: #e53e3e;
+}
+
+.income .record-amount {
+    color: #48bb78;
+}
+
+.loan .record-amount {
+    color: #805ad5;
+}
+
+.record-info {
+    text-align: right;
+}
+
+.record-category {
+    color: #e0e0e0;
+    margin-bottom: 4px;
+}
+
+.record-date {
+    color: #a0aec0;
+    font-size: 12px;
+}
+
+.record-account {
+    color: #a0aec0;
+    font-size: 14px;
+}
+
+.no-records {
+    text-align: center;
+    padding: 60px;
+    background: #2d2d2d;
+    border-radius: 12px;
+}
+
+.no-records i {
+    font-size: 48px;
+    color: #a0aec0;
+    margin-bottom: 16px;
+}
+
+.no-records p {
+    color: #a0aec0;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+function filterRecords() {
+    const type = document.getElementById('typeFilter').value;
+    const days = document.getElementById('dateFilter').value;
+    window.location.href = `/records?type=${type}&days=${days}`;
+}
+</script>
+{% endblock %} 

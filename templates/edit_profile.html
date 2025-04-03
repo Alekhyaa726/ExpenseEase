@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <h1>Alekhya Lanka</h1>
+        <p class="profile-subtitle">Personal Details</p>
+    </div>
+    
+    <div class="profile-card">
+        <div class="info-group">
+            <div class="info-label">
+                <i class="fas fa-envelope"></i>
+                Email
+            </div>
+            <div class="info-value">melxdiq777@gmail.com</div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-label">
+                <i class="fas fa-phone"></i>
+                Phone
+            </div>
+            <div class="info-value">9030655615</div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-label">
+                <i class="fas fa-wallet"></i>
+                Budget
+            </div>
+            <div class="info-value">₹900,000</div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    background: #4299e1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-avatar i {
+    font-size: 48px;
+    color: white;
+}
+
+.profile-header h1 {
+    color: #2d3748;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.profile-subtitle {
+    color: #718096;
+    font-size: 16px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.info-group {
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.info-group:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #4a5568;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-label i {
+    color: #4299e1;
+    font-size: 18px;
+}
+
+.info-value {
+    color: #2d3748;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .profile-container {
+        margin: 20px auto;
+    }
+    
+    .info-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .info-value {
+        margin-left: 28px;
+    }
+}
+</style>
+{% endblock %} 

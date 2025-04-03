@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            background: #1a1a1a;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        
+        .sidebar-brand {
+            color: #4299e1;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 0 20px;
+            padding-bottom: 20px;
+        }
+        
+        .nav-link {
+            color: #a0aec0;
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background: #3d3d3d;
+            color: #4299e1;
+        }
+        
+        .nav-link.active {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .nav-link i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #4299e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .notification-badge {
+            position: relative;
+        }
+        
+        .notification-badge::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #e53e3e;
+            border-radius: 50%;
+        }
+        
+        .nav-items .nav-link.logout {
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        {% if user_logged_in %}
+            <nav class="sidebar">
+                <a href="{{ url_for('index') }}" class="sidebar-brand">
+                    <i class="fas fa-chart-pie"></i>
+                    Expense Tracker
+                </a>
+                <div class="nav-items">
+                    <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="{{ url_for('new_expense') }}" class="nav-link {% if request.endpoint == 'new_expense' %}active{% endif %}">
+                        <i class="fas fa-plus-circle"></i>
+                        Add Expense
+                    </a>
+                    <a href="{{ url_for('loans') }}" class="nav-link {% if request.endpoint == 'loans' %}active{% endif %}">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        Loans
+                    </a>
+                    <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}">
+                        <i class="fas fa-chart-bar"></i>
+                        Reports
+                    </a>
+                    <a href="{{ url_for('profile_screen') }}" class="nav-link {% if request.endpoint == 'profile_screen' %}active{% endif %}">
+                        <i class="fas fa-user"></i>
+                        Profile
+                    </a>
+                    <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint == 'notifications' %}active{% endif %}">
+                        <i class="fas fa-bell notification-badge"></i>
+                        Notifications
+                    </a>
+                    <a href="{{ url_for('accounts') }}" class="nav-link {% if request.endpoint == 'accounts' %}active{% endif %}">
+                        <i class="fas fa-university"></i>
+                        Accounts
+                    </a>
+                    <a href="{{ url_for('income') }}" class="nav-link {% if request.endpoint == 'income' %}active{% endif %}">
+                        <i class="fas fa-coins"></i>
+                        Income
+                    </a>
+                    <a href="{{ url_for('records') }}" class="nav-link {% if request.endpoint == 'records' %}active{% endif %}">
+                        <i class="fas fa-history"></i>
+                        Records
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="main-content">
+                <div class="top-bar">
+                    <h1>{{ request.endpoint.replace('_', ' ').title() if request.endpoint else 'Dashboard' }}</h1>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span>{{ session.username }}</span>
+                    </div>
+                </div>
+                <div class="page-content">
+                    {% block page_content %}{% endblock %}
+                </div>
+            </div>
+        {% else %}
+            <div class="auth-content">
+                {% block auth_content %}{% endblock %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

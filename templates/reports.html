@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<div class="reports-container">
+    <!-- Expense Breakdown -->
+    <div class="chart-card">
+        <h3>Expense Breakdown</h3>
+        <canvas id="expenseChart"></canvas>
+    </div>
+
+    <!-- Monthly Trend -->
+    <div class="chart-card">
+        <h3>Monthly Trend</h3>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- Budget Info -->
+    <div class="budget-card">
+        <h3>Budget Information</h3>
+        <div class="budget-info">
+            <div class="budget-item">
+                <span>Monthly Budget:</span>
+                <span class="amount">₹{{ "%.2f"|format(monthly_budget) }}</span>
+            </div>
+            <div class="budget-item">
+                <span>Current Month Expenses:</span>
+                <span class="amount">₹{{ "%.2f"|format(current_month_expenses) }}</span>
+            </div>
+            <div class="budget-item">
+                <span>Remaining:</span>
+                <span class="amount">₹{{ "%.2f"|format(monthly_budget - current_month_expenses) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.reports-container {
+    padding: 20px;
+    display: grid;
+    gap: 20px;
+}
+
+.chart-card, .budget-card {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+h3 {
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.budget-info {
+    display: grid;
+    gap: 10px;
+}
+
+.budget-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    color: #e0e0e0;
+}
+
+.amount {
+    font-weight: bold;
+    color: #4299e1;
+}
+
+canvas {
+    width: 100% !important;
+    height: 300px !important;
+    margin-bottom: 20px;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Expense Breakdown Chart
+    const categories = {{ categories|tojson|safe if categories else '[]' }};
+    const monthlyTrend = {{ monthly_trend|tojson|safe if monthly_trend else '[]' }};
+    
+    new Chart(document.getElementById('expenseChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categories.map(cat => cat.category),
+            datasets: [{
+                data: categories.map(cat => cat.total),
+                backgroundColor: [
+                    '#FF6384', // Red for Food
+                    '#36A2EB', // Blue for Transportation
+                    '#FFCE56', // Yellow for Entertainment
+                    '#4BC0C0', // Teal for Bills
+                    '#FF9F40', // Orange for Shopping
+                    '#9966FF'  // Purple for Others
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#a0aec0' }
+                }
+            }
+        }
+    });
+
+    // Monthly Trend Chart
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyTrend.map(item => item.month),
+            datasets: [{
+                label: 'Monthly Expenses',
+                data: monthlyTrend.map(item => item.total),
+                borderColor: '#4299e1',
+                backgroundColor: 'rgba(66, 153, 225, 0.2)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 6,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#4299e1',
+                pointBorderWidth: 2,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: '#4299e1',
+                pointHoverBorderColor: '#fff',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { 
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: { 
+                        color: '#a0aec0',
+                        padding: 10,
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString('en-IN');
+                        }
+                    }
+                },
+                x: {
+                    grid: { 
+                        display: false 
+                    },
+                    ticks: { 
+                        color: '#a0aec0',
+                        padding: 10,
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { 
+                        color: '#a0aec0',
+                        padding: 20,
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
+                    padding: 15,
+                    callbacks: {
+                        label: function(context) {
+                            return '₹' + context.raw.toLocaleString('en-IN');
+                        }
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+
